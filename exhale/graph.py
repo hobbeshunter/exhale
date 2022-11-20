@@ -1055,6 +1055,9 @@ class ExhaleRoot(object):
 
         ``variables`` (list)
             The full list of ExhaleNodes of kind ``variable``.
+
+        ``concepts`` (list)
+            The full list of ExhaleNodes of kind ``concept``.
     '''
     def __init__(self):
         # file generation location and root index data
@@ -1115,6 +1118,8 @@ class ExhaleRoot(object):
         self.variables       = []           # |
         # doxygenpage      <-+-> "page"       |
         self.pages           = []           # |
+        # doxygenconcept   <-+-> "concept"    |
+        self.concepts        = []           # |
         # -------------------+----------------+
         # tracks the named ordering of pages as they show up in index.xml
         # so that the page hierarchy can be presented in the same order.
@@ -1692,6 +1697,8 @@ class ExhaleRoot(object):
                 self.typedefs.append(node)
             elif node.kind == "union":
                 self.unions.append(node)
+            elif node.kind == "concept":
+                self.concepts.append(node)
             elif node.kind == "page":
                 self.pages.append(node)
                 if node.refid != "indexpage":
@@ -2225,6 +2232,7 @@ class ExhaleRoot(object):
         self.typedefs.sort()
         self.variables.sort()
         self.pages.sort()
+        self.concepts.sort()
 
         # hierarchical lists: sort children
         self.deepSortList(self.class_like)
@@ -3079,8 +3087,8 @@ class ExhaleRoot(object):
         Helper method for :func:`~exhale.graph.ExhaleRoot.generateSingleNamespace`, and
         :func:`~exhale.graph.ExhaleRoot.generateFileNodeDocuments`.  Builds the
         body text for the namespace node document that links to all of the child
-        namespaces, structs, classes, functions, typedefs, unions, and variables
-        associated with this namespace.
+        namespaces, structs, classes, functions, typedefs, unions, variables, and 
+        concepts associated with this namespace.
 
         :Parameters:
             ``nspace`` (ExhaleNode)
@@ -3097,6 +3105,7 @@ class ExhaleRoot(object):
         nsp_typedefs          = []
         nsp_unions            = []
         nsp_variables         = []
+        nsp_concepts          = []
         for child in nspace.children:
             # Skip children whose names were requested to be explicitly ignored.
             should_exclude = False
@@ -3122,6 +3131,8 @@ class ExhaleRoot(object):
                 nsp_unions.append(child)
             elif child.kind == "variable":
                 nsp_variables.append(child)
+            elif child.kind == "concept":
+                nsp_concepts.append(child)
 
         # generate their headings if they exist (no Defines...that's not a C++ thing...)
         children_stream = StringIO()
@@ -3132,6 +3143,7 @@ class ExhaleRoot(object):
         self.generateSortedChildListString(children_stream, "Typedefs", nsp_typedefs)
         self.generateSortedChildListString(children_stream, "Unions", nsp_unions)
         self.generateSortedChildListString(children_stream, "Variables", nsp_variables)
+        self.generateSortedChildListString(children_stream, "Concepts", nsp_concepts)
         # read out the buffer contents, close it and return the desired string
         children_string = children_stream.getvalue()
         children_stream.close()
@@ -4114,7 +4126,8 @@ class ExhaleRoot(object):
                 ("Typedefs", "typedef"),
                 ("Directories", "dir"),
                 ("Files", "file"),
-                ("Pages", "page")
+                ("Pages", "page"),
+                ("Concepts", "concept")
             ]
             for title, kind in dump_order:
                 node_list = unabridged_specs[kind]
@@ -4210,7 +4223,8 @@ class ExhaleRoot(object):
             "typedef":   utils.AnsiColors.BOLD_YELLOW,
             "union":     utils.AnsiColors.BOLD_MAGENTA,
             "variable":  utils.AnsiColors.BOLD_CYAN,
-            "page":      utils.AnsiColors.BOLD_YELLOW
+            "page":      utils.AnsiColors.BOLD_YELLOW,
+            "concept":   utils.AnsiColors.BOLD_MAGENTA
         }
 
         self.consoleFormat(
@@ -4279,6 +4293,11 @@ class ExhaleRoot(object):
         self.consoleFormat(
             utils._use_color("Pages", fmt_spec["page"], sys.stderr),
             self.pages,
+            fmt_spec
+        )
+        self.consoleFormat(
+            utils._use_color("Concepts", fmt_spec["concept"], sys.stderr),
+            self.concepts,
             fmt_spec
         )
 

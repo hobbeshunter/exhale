@@ -119,7 +119,8 @@ AVAILABLE_KINDS = [
     "typedef",
     "union",
     "variable",
-    "page"
+    "page",
+    "concept"
 ]
 '''
 All potential input ``kind`` values coming from Doxygen.
@@ -135,7 +136,8 @@ LEAF_LIKE_KINDS = [
     "struct",
     "typedef",
     "union",
-    "variable"
+    "variable",
+    "concept"
 ]
 '''
 All kinds that can be generated using |generateSingleNodeRST|.
@@ -427,6 +429,8 @@ def qualifyKind(kind):
     +-------------+------------------+
     | "variable"  | "Variable"       |
     +-------------+------------------+
+    | "concept"   | "Concept"        |
+    +-------------+------------------+
 
     The following breathe kinds are ignored:
 
@@ -485,6 +489,8 @@ def kindAsBreatheDirective(kind):
     | "variable"  | "doxygenvariable"  |
     +-------------+--------------------+
     | "page"      | "doxygenpage"      |
+    +-------------+--------------------+
+    | "concept"   | "doxygenconcept"   |
     +-------------+--------------------+
 
     The following breathe kinds are ignored:
